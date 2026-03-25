@@ -2,7 +2,6 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - ByZenoxxx</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,13 +13,19 @@
         .box { background: #111; border: 1px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
         input { background: #000; color: #fff; border: 1px solid #444; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
-        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-purple:hover { background: #8257e5; transform: scale(1.02); }
-        label { font-size: 10px; color: #6e45e2; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        
+        #welcome-msg { 
+            background: linear-gradient(to right, #6e45e2, #a183f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            font-weight: 800;
+        }
     </style>
 </head>
 <body>
-
     <div id="login-screen">
         <div class="login-card">
             <h2 style="color:#6e45e2; margin-bottom:25px;">ADMIN PANEL</h2>
@@ -35,30 +40,25 @@
             <h1 id="welcome-msg">🛠️ Admin</h1>
             <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#666; cursor:pointer; padding:5px 10px; border-radius:5px;">Déconnexion</button>
         </div>
-
         <div class="box">
             <h3>📅 PLANNING</h3>
             <div id="edit-sched" class="grid"></div>
-            <button class="btn-purple" onclick="saveData('schedule')" style="margin-top:20px;">Sauvegarder Planning</button>
+            <button class="btn-purple" onclick="saveData('schedule')" style="margin-top:20px;">Sauvegarder</button>
         </div>
-
         <div class="box">
-            <h3>🖥️ SETUP (22 CASES)</h3>
+            <h3>🖥️ SETUP</h3>
             <div id="edit-setup" class="grid"></div>
-            <button class="btn-purple" onclick="saveData('setup')" style="margin-top:20px;">Sauvegarder Setup</button>
+            <button class="btn-purple" onclick="saveData('setup')" style="margin-top:20px;">Sauvegarder</button>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
         let authData = { user: "", pass: "" };
-
         async function tryLogin() {
             const user = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
-
             const { data } = await _supabase.from('secrets').select('*').eq('username', user).eq('password', pass).maybeSingle();
-            
             if (data) {
                 authData = { user, pass };
                 document.getElementById('welcome-msg').innerText = `👋 Salut ${user} !`;
@@ -67,14 +67,12 @@
                 loadAdminContent();
             } else { alert("❌ Identifiants faux."); }
         }
-
         async function loadAdminContent() {
             const { data: s } = await _supabase.from('schedule').select('*').order('day_id');
             document.getElementById('edit-sched').innerHTML = s.map(d => `<div><label>${d.day_name}</label><input class="in-s" data-id="${d.day_id}" value="${d.stream_time}"></div>`).join('');
             const { data: st } = await _supabase.from('setup').select('*').order('id');
             document.getElementById('edit-setup').innerHTML = st.map(t => `<div><label>Case ${t.id}</label><input class="in-st" data-id="${t.id}" value="${t.item_name}"></div>`).join('');
         }
-
         async function saveData(type) {
             const { data } = await _supabase.from('secrets').select('id').eq('username', authData.user).eq('password', authData.pass).maybeSingle();
             if (data) {
@@ -83,7 +81,7 @@
                 for (let i of inputs) {
                     await _supabase.from(type).update(isSched ? { stream_time: i.value } : { item_name: i.value }).eq(isSched ? 'day_id' : 'id', i.dataset.id);
                 }
-                alert("✨ Enregistré !");
+                alert("✅ Changements enregistrés !");
             } else { location.reload(); }
         }
     </script>
