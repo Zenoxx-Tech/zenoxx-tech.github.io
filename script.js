@@ -1,9 +1,13 @@
 // ==========================================
 // 1. CONFIGURATION SUPABASE
 // ==========================================
-// REMPLACE BIEN CES DEUX LIGNES PAR TES INFOS SUPABASE
 const SUPABASE_URL = 'https://phorlnthbftxntikvjge.supabase.co/'; 
 const SUPABASE_KEY = 'sb_publishable_Kq_O3-Aw81Gqv1m-4YlQUQ_AGQ3KJGE';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ==========================================
+// 2. NAVIGATION ET INTERFACE
+// ==========================================
 function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const target = document.getElementById('page-' + id);
@@ -15,19 +19,27 @@ function toggleChat() {
     if(chat) chat.style.display = (chat.style.display === 'none') ? 'block' : 'none';
 }
 
+// ==========================================
+// 3. CHARGEMENT DES DONNÉES DYNAMIQUES
+// ==========================================
 async function loadData() {
     const pCont = document.getElementById('planning-container');
     const sCont = document.getElementById('setup-container');
+    
     if(pCont) {
         const { data: s } = await _supabase.from('schedule').select('*').order('day_id');
         if(s) pCont.innerHTML = s.map(d => `<div class="p-item"><h4>${d.day_name}</h4><p>${d.stream_time}</p></div>`).join('');
     }
+    
     if(sCont) {
         const { data: st } = await _supabase.from('setup').select('*').order('id');
         if(st) sCont.innerHTML = st.map(s => `<div class="setup-item">${s.item_name}</div>`).join('');
     }
 }
 
+// ==========================================
+// 4. CANVAS INTERACTIF (RÉPULSION / ATTRACTION)
+// ==========================================
 const canvas = document.getElementById('bg-canvas');
 if(canvas) {
     const ctx = canvas.getContext('2d');
@@ -56,8 +68,8 @@ if(canvas) {
                 let dx = mouse.x - p.x, dy = mouse.y - p.y, dist = Math.sqrt(dx*dx+dy*dy);
                 if (dist < 150) {
                     let f = (150-dist)/150;
-                    if (mouse.isPressed) { p.x += dx*f*0.15; p.y += dy*f*0.15; } // Attraction
-                    else { p.x -= dx*f*0.04; p.y -= dy*f*0.04; } // Répulsion
+                    if (mouse.isPressed) { p.x += dx*f*0.15; p.y += dy*f*0.15; } // Attraction au clic
+                    else { p.x -= dx*f*0.04; p.y -= dy*f*0.04; } // Répulsion au survol
                 }
             }
             if(p.x<0||p.x>canvas.width) p.vx*=-1; if(p.y<0||p.y>canvas.height) p.vy*=-1;
@@ -65,6 +77,7 @@ if(canvas) {
         });
         requestAnimationFrame(draw);
     }
+
     window.addEventListener('resize', init);
     window.onload = () => { loadData(); init(); draw(); };
 }
