@@ -1,11 +1,10 @@
-// ==========================================
-// 1. CONFIGURATION SUPABASE
-// ==========================================
+// CONFIGURATION
 const SUPABASE_URL = 'https://phorlnthbftxntikvjge.supabase.co/'; 
 const SUPABASE_KEY = 'sb_publishable_Kq_O3-Aw81Gqv1m-4YlQUQ_AGQ3KJGE';
 
-// CETTE LIGNE CI-DESSOUS ÉTAIT MANQUANTE (CRUCIAL) :
+// INITIALISATION (L'OUBLI RÉCURRENT)
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+console.log("Supabase chargé avec succès !");
 
 function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -31,6 +30,7 @@ async function loadData() {
     }
 }
 
+// FOND INTERACTIF
 const canvas = document.getElementById('bg-canvas');
 if(canvas) {
     const ctx = canvas.getContext('2d');
