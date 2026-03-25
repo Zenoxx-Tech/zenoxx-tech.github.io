@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ByZenoxxx - Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+    
+    <header>
+        <div class="logo">ByZenoxxx</div>
+        <nav>
+            <a href="javascript:void(0)" onclick="showPage('stream')">Stream</a>
+            <a href="javascript:void(0)" onclick="showPage('planning')">Planning</a>
+            <a href="javascript:void(0)" onclick="showPage('setup')">Mon Setup</a>
+            <a href="javascript:void(0)" onclick="showPage('socials')">Réseaux</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="page-stream" class="page active">
+            <div class="stream-layout">
+                <div class="video-box">
+                    <iframe src="https://player.twitch.tv/?channel=byzenoxxx&parent=zenoxx-tech.github.io" allowfullscreen></iframe>
+                </div>
+                <div class="chat-box" id="twitch-chat">
+                    <iframe src="https://www.twitch.tv/embed/byzenoxxx/chat?parent=zenoxx-tech.github.io&darkpopout"></iframe>
+                </div>
+            </div>
+            <button class="toggle-chat" onclick="toggleChat()">💬 Masquer/Afficher Chat</button>
+        </section>
+
+        <section id="page-planning" class="page">
+            <h2 class="section-title">📅 Mon Planning</h2>
+            <div id="planning-container" class="planning-horizontal"></div>
+        </section>
+
+        <section id="page-setup" class="page">
+            <h2 class="section-title">🖥️ Mon Setup</h2>
+            <div id="setup-container" class="setup-grid-22"></div>
+        </section>
+
+        <section id="page-socials" class="page">
+            <div class="social-vertical">
+                <a href="https://www.twitch.tv/byzenoxxx" target="_blank" class="s-card twitch">TWITCH</a>
+                <a href="https://twitter.com/ByZenoxxx" target="_blank" class="s-card twitter">TWITTER / X</a>
+                <a href="https://www.snapchat.com/add/ByZenoxxx" target="_blank" class="s-card snapchat">SNAPCHAT</a>
+                <a href="https://www.instagram.com/byzenoxx_off/" target="_blank" class="s-card instagram">INSTAGRAM</a>
+                <a href="https://www.youtube.com/@ByZenoxxx" target="_blank" class="s-card youtube">YOUTUBE</a>
+                <a href="https://discord.gg/Y7Tc7vvs7u" target="_blank" class="s-card discord">DISCORD</a>
+            </div>
+        </section>
+    </main>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
