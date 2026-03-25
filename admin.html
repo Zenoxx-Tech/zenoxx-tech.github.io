@@ -7,16 +7,15 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background: #0a0a0a; color: white; padding: 20px; font-family: sans-serif; position: relative; }
+        body { background: #0a0a0a; color: white; padding: 20px; font-family: sans-serif; }
         #login-screen { height: 85vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 1px solid #6e45e2; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .login-card { background: #111; padding: 40px; border-radius: 20px; border: 1px solid #6e45e2; width: 320px; text-align: center; }
         .admin-logo { height: 60px; margin-bottom: 20px; }
-        #admin-panel { display: none; max-width: 1100px; margin: auto; animation: fadeIn 0.5s; }
+        #admin-panel { display: none; max-width: 1100px; margin: auto; }
         .box { background: #111; border: 1px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
         input { background: #000; color: #fff; border: 1px solid #444; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; margin-bottom: 15px; }
-        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-purple:hover { background: #8156f0; transform: scale(1.02); }
+        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
         #welcome-msg { background: linear-gradient(to right, #6e45e2, #a183f1); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; font-weight: 800; }
     </style>
 </head>
@@ -26,27 +25,27 @@
     <div id="login-screen">
         <div class="login-card">
             <img src="logo.png" alt="Logo" class="admin-logo">
-            <h2 style="color:#6e45e2; margin-bottom:25px; font-size: 14px; letter-spacing: 2px;">PANEL DE CONTRÔLE</h2>
+            <h2 style="color:#6e45e2; margin-bottom:25px;">PANEL ADMIN</h2>
             <input type="text" id="admin-user" placeholder="Pseudo">
             <input type="password" id="admin-pass" placeholder="Mot de passe">
-            <button class="btn-purple" onclick="tryLogin()">SE CONNECTER</button>
+            <button class="btn-purple" onclick="tryLogin()">ENTRER</button>
         </div>
     </div>
 
     <div id="admin-panel">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h1 id="welcome-msg">🛠️ Interface Gestion</h1>
-            <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#888; cursor:pointer; padding:8px 15px; border-radius:5px;">Déconnexion</button>
+            <h1 id="welcome-msg">🛠️ Gestion du Hub</h1>
+            <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#888; cursor:pointer; padding:8px 15px; border-radius:5px;">Quitter</button>
         </div>
         <div class="box">
             <h3>📅 PLANNING</h3>
             <div id="edit-sched" class="grid"></div>
-            <button class="btn-purple" onclick="saveData('schedule')" style="margin-top:20px;">Enregistrer le planning</button>
+            <button class="btn-purple" onclick="saveData('schedule')">SAUVEGARDER LE PLANNING</button>
         </div>
         <div class="box">
             <h3>🖥️ SETUP</h3>
             <div id="edit-setup" class="grid"></div>
-            <button class="btn-purple" onclick="saveData('setup')" style="margin-top:20px;">Enregistrer le setup</button>
+            <button class="btn-purple" onclick="saveData('setup')">SAUVEGARDER LE SETUP</button>
         </div>
     </div>
 
@@ -56,22 +55,35 @@
             const user = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
             
-            // On utilise _supabase défini dans script.js
-            const { data, error } = await _supabase.from('secrets').select('*').eq('username', user).eq('password', pass).maybeSingle();
-            
-            if (data) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                loadAdminContent();
-            } else { 
-                alert("❌ Identifiants faux ou accès refusé."); 
-                if(error) console.log(error);
+            console.log("Tentative de connexion pour :", user);
+
+            try {
+                const { data, error } = await _supabase
+                    .from('secrets')
+                    .select('*')
+                    .eq('username', user)
+                    .eq('password', pass)
+                    .maybeSingle();
+
+                if (error) throw error;
+
+                if (data) {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('admin-panel').style.display = 'block';
+                    loadAdminContent();
+                } else {
+                    alert("❌ Identifiants faux.");
+                }
+            } catch (err) {
+                console.error("Erreur Supabase :", err);
+                alert("Erreur technique. Vérifie ta console (F12).");
             }
         }
 
         async function loadAdminContent() {
             const { data: s } = await _supabase.from('schedule').select('*').order('day_id');
             document.getElementById('edit-sched').innerHTML = s.map(d => `<div><label style="font-size:10px; color:#6e45e2;">${d.day_name}</label><input class="in-s" data-id="${d.day_id}" value="${d.stream_time}"></div>`).join('');
+            
             const { data: st } = await _supabase.from('setup').select('*').order('id');
             document.getElementById('edit-setup').innerHTML = st.map(t => `<div><label style="font-size:10px; color:#6e45e2;">Item ${t.id}</label><input class="in-st" data-id="${t.id}" value="${t.item_name}"></div>`).join('');
         }
