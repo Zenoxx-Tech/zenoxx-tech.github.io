@@ -1,36 +1,52 @@
-/* DESIGN GÉNÉRAL */
-body { background: #0a0a0a; color: white; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+/* BASE */
+body { background: #080808; color: white; margin: 0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
 #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-/* SETUP ITEMS AVEC EFFET GLOW */
-a.setup-item {
+/* HEADER & NAV */
+header { display: flex; justify-content: space-between; align-items: center; padding: 30px 0; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px; }
+nav a { color: #888; text-decoration: none; margin-left: 25px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.3s; letter-spacing: 1px; }
+nav a:hover { color: #6e45e2; }
+
+/* PAGES ANIMATION */
+.page { display: none; animation: fadeIn 0.4s ease-out; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* TWITCH SECTION */
+.twitch-section { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+#twitch-embed { flex: 3; min-width: 300px; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; border: 1px solid #222; }
+#twitch-chat { flex: 1; min-width: 300px; height: 500px; border-radius: 12px; border: 1px solid #222; }
+.btn-chat-toggle { background: #1a1a1a; color: #6e45e2; border: 1px solid #6e45e2; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+.btn-chat-toggle:hover { background: #6e45e2; color: white; }
+
+/* GRILLES DE DONNÉES */
+.data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.section-title { text-align: center; font-size: 28px; margin-bottom: 40px; color: #fff; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ITEMS DU SETUP & SOCIAL CARDS (EFFET GLOW) */
+.setup-item {
     display: block;
     text-decoration: none;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid #333;
-    padding: 20px;
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid #222;
+    padding: 25px;
+    border-radius: 15px;
     text-align: center;
-    transition: all 0.3s ease-in-out;
-    cursor: pointer;
-    box-sizing: border-box;
-    margin-bottom: 10px;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-a.setup-item:hover {
-    background: rgba(110, 69, 226, 0.1);
-    border-color: #a183f1;
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 10px 30px rgba(110, 69, 226, 0.4);
+.setup-item:hover {
+    background: rgba(110, 69, 226, 0.05);
+    border-color: #6e45e2;
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(110, 69, 226, 0.3), 0 0 15px rgba(110, 69, 226, 0.1);
 }
 
-.amazon-link-text { color: #a183f1; font-size: 11px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1px; }
-.item-name-text { color: white; font-size: 16px; }
+.amazon-link-text { color: #6e45e2; font-size: 10px; font-weight: 800; letter-spacing: 1px; margin-bottom: 10px; text-transform: uppercase; }
+.item-name-text { color: white; font-size: 16px; font-weight: 500; }
 
-/* PLANNING */
-.p-item { background: rgba(110, 69, 226, 0.1); border: 1px solid #6e45e2; padding: 15px; border-radius: 10px; text-align: center; margin: 5px; }
-.p-item h4 { margin: 0; color: #a183f1; text-transform: uppercase; font-size: 12px; }
-.p-item p { margin: 5px 0 0; font-weight: bold; }
-
-/* ANIMATIONS */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* ITEMS PLANNING */
+.p-item { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; text-align: center; }
+.p-item h4 { margin: 0; color: #6e45e2; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; }
+.p-item p { margin: 0; font-size: 18px; font-weight: 700; }
