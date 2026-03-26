@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ByZenoxxx - Hub</title>
+    <title>ByZenoxxx - Hub Officiel</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,15 +14,19 @@
     <div class="container">
         <header>
             <div class="logo-area">
-                <img src="logo.png" alt="Logo" style="height: 40px;">
-                <span style="font-weight: 800; font-size: 20px; margin-left: 10px; letter-spacing: 1px;">BYZENOXXX</span>
+                <img src="logo.png" alt="Logo" style="height: 45px;">
+                <span class="brand-name">BYZENOXXX</span>
             </div>
-            <nav>
-                <a onclick="showPage('home')">STREAM</a>
-                <a onclick="showPage('planning')">PLANNING</a>
-                <a onclick="showPage('setup')">SETUP</a>
-                <a onclick="showPage('socials')">RÉSEAUX</a>
-            </nav>
+            
+            <div class="menu-container">
+                <button class="menu-toggle" onclick="toggleMenu(event)">☰ MENU</button>
+                <nav id="main-nav">
+                    <a onclick="showPage('home')">STREAM</a>
+                    <a onclick="showPage('planning')">PLANNING</a>
+                    <a onclick="showPage('setup')">SETUP</a>
+                    <a onclick="showPage('socials')">RÉSEAUX</a>
+                </nav>
+            </div>
         </header>
 
         <div id="page-home" class="page active">
@@ -36,42 +40,34 @@
         </div>
 
         <div id="page-planning" class="page">
-            <h2 class="section-title">📅 MON PLANNING</h2>
+            <h2 class="section-title">📅 PLANNING</h2>
             <div id="planning-container" class="data-grid"></div>
         </div>
 
         <div id="page-setup" class="page">
-            <h2 class="section-title">🖥️ MON SETUP GAMING</h2>
-            <p style="text-align:center; color:#888; margin-top:-15px; margin-bottom:25px;">Clique sur un élément pour voir le lien Amazon</p>
+            <h2 class="section-title">🖥️ SETUP GAMING</h2>
+            <p class="subtitle">Clique sur un élément pour voir le lien Amazon</p>
             <div id="setup-container" class="data-grid"></div>
         </div>
 
         <div id="page-socials" class="page">
-            <h2 class="section-title">🔗 MES RÉSEAUX</h2>
-            <div class="data-grid socials-grid">
-                <a href="https://www.twitch.tv/byzenoxxx" target="_blank" class="setup-item social-card">
+            <h2 class="section-title">🔗 RÉSEAUX</h2>
+            <div class="data-grid">
+                <a href="https://www.twitch.tv/byzenoxxx" target="_blank" class="setup-item">
                     <div class="amazon-link-text">LIVE</div>
                     <div class="item-name-text">Twitch</div>
                 </a>
-                <a href="https://twitter.com/ByZenoxxx" target="_blank" class="setup-item social-card">
+                <a href="https://twitter.com/ByZenoxxx" target="_blank" class="setup-item">
                     <div class="amazon-link-text">ACTU</div>
                     <div class="item-name-text">Twitter / X</div>
                 </a>
-                <a href="https://www.snapchat.com/add/ByZenoxxx" target="_blank" class="setup-item social-card">
-                    <div class="amazon-link-text">STORY</div>
-                    <div class="item-name-text">Snapchat</div>
+                <a href="https://discord.gg/Y7Tc7vvs7u" target="_blank" class="setup-item">
+                    <div class="amazon-link-text">COMMU</div>
+                    <div class="item-name-text">Discord</div>
                 </a>
-                <a href="https://www.instagram.com/byzenoxx_off/" target="_blank" class="setup-item social-card">
+                <a href="https://www.instagram.com/byzenoxx_off/" target="_blank" class="setup-item">
                     <div class="amazon-link-text">PHOTOS</div>
                     <div class="item-name-text">Instagram</div>
-                </a>
-                <a href="https://www.youtube.com/@ByZenoxxx" target="_blank" class="setup-item social-card">
-                    <div class="amazon-link-text">VIDÉOS</div>
-                    <div class="item-name-text">YouTube</div>
-                </a>
-                <a href="https://discord.gg/Y7Tc7vvs7u" target="_blank" class="setup-item social-card">
-                    <div class="amazon-link-text">COMMUNAUTÉ</div>
-                    <div class="item-name-text">Discord</div>
                 </a>
             </div>
         </div>
