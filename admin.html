@@ -11,11 +11,14 @@
         #login-screen { height: 85vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 1px solid #6e45e2; width: 320px; text-align: center; }
         .admin-logo { height: 60px; margin-bottom: 20px; }
-        #admin-panel { display: none; max-width: 1100px; margin: auto; }
-        .box { background: #111; border: 1px solid #333; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-        input { background: #000; color: #fff; border: 1px solid #444; padding: 12px; border-radius: 6px; width: 100%; box-sizing: border-box; margin-bottom: 15px; }
-        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        #admin-panel { display: none; max-width: 1000px; margin: auto; }
+        .box { background: #111; border: 1px solid #333; padding: 25px; border-radius: 12px; margin-bottom: 25px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .admin-input-group { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #444; position: relative; }
+        label { display: block; font-size: 11px; color: #6e45e2; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+        input { background: #111; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+        .btn-add { background: #1a1a1a; border: 1px dashed #6e45e2; color: #6e45e2; padding: 10px; cursor: pointer; border-radius: 8px; width: 100%; margin-bottom: 15px; font-weight: bold; }
         #welcome-msg { background: linear-gradient(to right, #6e45e2, #a183f1); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; font-weight: 800; }
     </style>
 </head>
@@ -28,7 +31,7 @@
             <h2 style="color:#6e45e2; margin-bottom:25px;">PANEL ADMIN</h2>
             <input type="text" id="admin-user" placeholder="Pseudo">
             <input type="password" id="admin-pass" placeholder="Mot de passe">
-            <button class="btn-purple" onclick="tryLogin()">ENTRER</button>
+            <button class="btn-purple" onclick="tryLogin()">CONNEXION</button>
         </div>
     </div>
 
@@ -37,14 +40,17 @@
             <h1 id="welcome-msg">🛠️ Gestion du Hub</h1>
             <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#888; cursor:pointer; padding:8px 15px; border-radius:5px;">Quitter</button>
         </div>
+
         <div class="box">
             <h3>📅 PLANNING</h3>
             <div id="edit-sched" class="grid"></div>
             <button class="btn-purple" onclick="saveData('schedule')">SAUVEGARDER LE PLANNING</button>
         </div>
+
         <div class="box">
-            <h3>🖥️ SETUP</h3>
+            <h3>🖥️ MON SETUP</h3>
             <div id="edit-setup" class="grid"></div>
+            <button class="btn-add" onclick="addNewSetupItem()">+ AJOUTER UN COMPOSANT</button>
             <button class="btn-purple" onclick="saveData('setup')">SAUVEGARDER LE SETUP</button>
         </div>
     </div>
@@ -54,47 +60,64 @@
         async function tryLogin() {
             const user = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
-            
-            console.log("Tentative de connexion pour :", user);
-
-            try {
-                const { data, error } = await _supabase
-                    .from('secrets')
-                    .select('*')
-                    .eq('username', user)
-                    .eq('password', pass)
-                    .maybeSingle();
-
-                if (error) throw error;
-
-                if (data) {
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('admin-panel').style.display = 'block';
-                    loadAdminContent();
-                } else {
-                    alert("❌ Identifiants faux.");
-                }
-            } catch (err) {
-                console.error("Erreur Supabase :", err);
-                alert("Erreur technique. Vérifie ta console (F12).");
-            }
+            const { data } = await _supabase.from('secrets').select('*').eq('username', user).eq('password', pass).maybeSingle();
+            if (data) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadAdminContent();
+            } else { alert("❌ Identifiants faux."); }
         }
 
         async function loadAdminContent() {
+            // Planning
             const { data: s } = await _supabase.from('schedule').select('*').order('day_id');
-            document.getElementById('edit-sched').innerHTML = s.map(d => `<div><label style="font-size:10px; color:#6e45e2;">${d.day_name}</label><input class="in-s" data-id="${d.day_id}" value="${d.stream_time}"></div>`).join('');
-            
+            document.getElementById('edit-sched').innerHTML = s.map(d => `
+                <div class="admin-input-group">
+                    <label>${d.day_name}</label>
+                    <input class="in-s" data-id="${d.day_id}" value="${d.stream_time}">
+                </div>`).join('');
+
+            // Setup
             const { data: st } = await _supabase.from('setup').select('*').order('id');
-            document.getElementById('edit-setup').innerHTML = st.map(t => `<div><label style="font-size:10px; color:#6e45e2;">Item ${t.id}</label><input class="in-st" data-id="${t.id}" value="${t.item_name}"></div>`).join('');
+            document.getElementById('edit-setup').innerHTML = st.map(t => `
+                <div class="admin-input-group">
+                    <label>Élément #${t.id}</label>
+                    <input class="in-st" data-id="${t.id}" value="${t.item_name}">
+                </div>`).join('');
+        }
+
+        // AJOUTER UNE LIGNE VIDE DANS L'INTERFACE
+        function addNewSetupItem() {
+            const cont = document.getElementById('edit-setup');
+            const div = document.createElement('div');
+            div.className = "admin-input-group";
+            div.innerHTML = `
+                <label style="color:#a183f1;">Nouveau composant</label>
+                <input class="in-st" data-id="new" value="" placeholder="Ex: Micro Shure SM7B">
+            `;
+            cont.appendChild(div);
         }
 
         async function saveData(type) {
             const isSched = type === 'schedule';
             const inputs = document.querySelectorAll(isSched ? '.in-s' : '.in-st');
+            
             for (let i of inputs) {
-                await _supabase.from(type).update(isSched ? { stream_time: i.value } : { item_name: i.value }).eq(isSched ? 'day_id' : 'id', i.dataset.id);
+                const val = i.value.trim();
+                if (val === "") continue; // On ignore les cases vides
+
+                if (i.dataset.id === "new") {
+                    // C'est un nouveau composant -> On l'ajoute (INSERT)
+                    await _supabase.from(type).insert([{ item_name: val }]);
+                } else {
+                    // C'veut dire qu'il existe déjà -> On le modifie (UPDATE)
+                    await _supabase.from(type)
+                        .update(isSched ? { stream_time: val } : { item_name: val })
+                        .eq(isSched ? 'day_id' : 'id', i.dataset.id);
+                }
             }
-            alert("✅ Données mises à jour !");
+            alert("✅ Données synchronisées avec Supabase !");
+            loadAdminContent(); // On recharge pour transformer les "new" en vrais IDs
         }
     </script>
 </body>
