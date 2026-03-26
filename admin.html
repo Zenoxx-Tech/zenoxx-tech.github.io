@@ -7,19 +7,19 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background: #0a0a0a; color: white; padding: 20px; font-family: sans-serif; }
-        #login-screen { height: 85vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        body { padding: 20px; }
+        #login-screen { height: 90vh; display: flex; align-items: center; justify-content: center; }
         .login-card { background: #111; padding: 40px; border-radius: 20px; border: 1px solid #6e45e2; width: 320px; text-align: center; }
         .admin-logo { height: 60px; margin-bottom: 20px; }
-        #admin-panel { display: none; max-width: 1000px; margin: auto; }
+        #admin-panel { display: none; max-width: 1000px; margin: auto; animation: fadeIn 0.5s; }
         .box { background: #111; border: 1px solid #333; padding: 25px; border-radius: 12px; margin-bottom: 25px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
-        .admin-input-group { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #444; position: relative; }
-        label { display: block; font-size: 11px; color: #6e45e2; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
-        input { background: #111; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 5px; width: 100%; box-sizing: border-box; }
-        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .btn-add { background: #1a1a1a; border: 1px dashed #6e45e2; color: #6e45e2; padding: 10px; cursor: pointer; border-radius: 8px; width: 100%; margin-bottom: 15px; font-weight: bold; }
-        #welcome-msg { background: linear-gradient(to right, #6e45e2, #a183f1); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-size: 2rem; font-weight: 800; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .admin-input-group { background: #000; padding: 15px; border-radius: 10px; border: 1px solid #444; }
+        label { display: block; font-size: 11px; color: #6e45e2; margin-bottom: 8px; font-weight: bold; }
+        input { background: #111; color: #fff; border: 1px solid #333; padding: 10px; border-radius: 5px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+        .btn-purple { background: #6e45e2; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn-add { background: #1a1a1a; border: 1px dashed #6e45e2; color: #6e45e2; padding: 12px; cursor: pointer; border-radius: 8px; width: 100%; margin-bottom: 20px; font-weight: bold; }
+        .btn-delete { background: #cc0000; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; float: right; }
     </style>
 </head>
 <body>
@@ -28,17 +28,17 @@
     <div id="login-screen">
         <div class="login-card">
             <img src="logo.png" alt="Logo" class="admin-logo">
-            <h2 style="color:#6e45e2; margin-bottom:25px;">PANEL ADMIN</h2>
+            <h2 style="color:#6e45e2;">ADMIN HUB</h2>
             <input type="text" id="admin-user" placeholder="Pseudo">
             <input type="password" id="admin-pass" placeholder="Mot de passe">
-            <button class="btn-purple" onclick="tryLogin()">CONNEXION</button>
+            <button class="btn-purple" onclick="tryLogin()">ENTRER</button>
         </div>
     </div>
 
     <div id="admin-panel">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h1 id="welcome-msg">🛠️ Gestion du Hub</h1>
-            <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#888; cursor:pointer; padding:8px 15px; border-radius:5px;">Quitter</button>
+            <h1 style="color:#6e45e2;">🛠️ Administration</h1>
+            <button onclick="location.reload()" style="background:#222; color:#888; border:1px solid #444; padding:8px; border-radius:5px; cursor:pointer;">Quitter</button>
         </div>
 
         <div class="box">
@@ -49,7 +49,7 @@
 
         <div class="box">
             <h3>🖥️ MON SETUP</h3>
-            <div id="edit-setup" class="grid"></div>
+            <div id="edit-setup" class="grid" style="margin-bottom: 20px;"></div>
             <button class="btn-add" onclick="addNewSetupItem()">+ AJOUTER UN COMPOSANT</button>
             <button class="btn-purple" onclick="saveData('setup')">SAUVEGARDER LE SETUP</button>
         </div>
@@ -69,7 +69,6 @@
         }
 
         async function loadAdminContent() {
-            // Planning
             const { data: s } = await _supabase.from('schedule').select('*').order('day_id');
             document.getElementById('edit-sched').innerHTML = s.map(d => `
                 <div class="admin-input-group">
@@ -77,47 +76,48 @@
                     <input class="in-s" data-id="${d.day_id}" value="${d.stream_time}">
                 </div>`).join('');
 
-            // Setup
             const { data: st } = await _supabase.from('setup').select('*').order('id');
             document.getElementById('edit-setup').innerHTML = st.map(t => `
                 <div class="admin-input-group">
-                    <label>Élément #${t.id}</label>
-                    <input class="in-st" data-id="${t.id}" value="${t.item_name}">
+                    <button class="btn-delete" onclick="deleteItem(${t.id})">Suppr</button>
+                    <label>Item #${t.id}</label>
+                    <input class="in-st-name" data-id="${t.id}" value="${t.item_name}" placeholder="Nom">
+                    <input class="in-st-url" data-id="${t.id}" value="${t.amazon_url || '#'}" placeholder="Lien Amazon">
                 </div>`).join('');
         }
 
-        // AJOUTER UNE LIGNE VIDE DANS L'INTERFACE
         function addNewSetupItem() {
-            const cont = document.getElementById('edit-setup');
             const div = document.createElement('div');
             div.className = "admin-input-group";
-            div.innerHTML = `
-                <label style="color:#a183f1;">Nouveau composant</label>
-                <input class="in-st" data-id="new" value="" placeholder="Ex: Micro Shure SM7B">
-            `;
-            cont.appendChild(div);
+            div.innerHTML = `<label>Nouveau</label><input class="in-st-name" data-id="new" value="" placeholder="Nom"><input class="in-st-url" data-id="new" value="" placeholder="Lien Amazon">`;
+            document.getElementById('edit-setup').appendChild(div);
         }
 
         async function saveData(type) {
-            const isSched = type === 'schedule';
-            const inputs = document.querySelectorAll(isSched ? '.in-s' : '.in-st');
-            
-            for (let i of inputs) {
-                const val = i.value.trim();
-                if (val === "") continue; // On ignore les cases vides
-
-                if (i.dataset.id === "new") {
-                    // C'est un nouveau composant -> On l'ajoute (INSERT)
-                    await _supabase.from(type).insert([{ item_name: val }]);
-                } else {
-                    // C'veut dire qu'il existe déjà -> On le modifie (UPDATE)
-                    await _supabase.from(type)
-                        .update(isSched ? { stream_time: val } : { item_name: val })
-                        .eq(isSched ? 'day_id' : 'id', i.dataset.id);
+            if(type === 'schedule') {
+                const inputs = document.querySelectorAll('.in-s');
+                for (let i of inputs) { await _supabase.from('schedule').update({ stream_time: i.value }).eq('day_id', i.dataset.id); }
+            } else {
+                const names = document.querySelectorAll('.in-st-name');
+                const urls = document.querySelectorAll('.in-st-url');
+                for (let j = 0; j < names.length; j++) {
+                    const id = names[j].dataset.id;
+                    if (id === "new" && names[j].value !== "") {
+                        await _supabase.from('setup').insert([{ item_name: names[j].value, amazon_url: urls[j].value }]);
+                    } else if (id !== "new") {
+                        await _supabase.from('setup').update({ item_name: names[j].value, amazon_url: urls[j].value }).eq('id', id);
+                    }
                 }
             }
-            alert("✅ Données synchronisées avec Supabase !");
-            loadAdminContent(); // On recharge pour transformer les "new" en vrais IDs
+            alert("✅ Données sauvegardées !");
+            loadAdminContent();
+        }
+
+        async function deleteItem(id) {
+            if(confirm("Supprimer cet objet ?")) {
+                await _supabase.from('setup').delete().eq('id', id);
+                loadAdminContent();
+            }
         }
     </script>
 </body>
