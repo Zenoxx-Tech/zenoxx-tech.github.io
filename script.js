@@ -48,32 +48,104 @@ async function loadData() {
     }
 }
 
-// ANIMATION DU FOND (CANVAS)
+// ==========================================
+// CHAMP D'ÉTOILES INTERACTIF & CONSTELLATIONS
+// ==========================================
 const canvas = document.getElementById('bg-canvas');
 if(canvas) {
     const ctx = canvas.getContext('2d');
     let pts = [], mouse = { x: null, y: null };
+    
+    // Sensibilité souris (plus fort = plus de répulsion)
+    const MOUSE_REPULSION = 100;
+
     window.addEventListener('mousemove', (e) => { mouse.x = e.x; mouse.y = e.y; });
 
     function init() {
         canvas.width = window.innerWidth; 
         canvas.height = window.innerHeight;
-        pts = Array.from({length: 45}, () => ({ 
+        
+        // On crée un champ d'étoiles (mélange de tailles et de vitesses)
+        pts = Array.from({length: 60}, () => ({ 
             x: Math.random()*canvas.width, 
             y: Math.random()*canvas.height, 
-            vx: Math.random()*0.5-0.25, 
-            vy: Math.random()*0.5-0.25 
+            // Vitesse de défilement (très lent)
+            vx: Math.random()*0.3+0.1, 
+            vy: Math.random()*0.15-0.075,
+            // Taille variable pour l'effet de profondeur
+            size: Math.random()*1.5+0.5,
+            // Opacité variable pour scintillement
+            brightness: Math.random()*0.6+0.4
         }));
+    }
+
+    // Fonction pour dessiner les constellations
+    function drawConstellations() {
+        // Opacité des constellations (violet très clair)
+        ctx.strokeStyle = "rgba(110, 69, 226, 0.1)";
+        ctx.lineWidth = 0.5;
+        
+        // Distance max pour relier deux étoiles (crée des groupes)
+        const MAX_DIST = 200; 
+
+        pts.forEach((p1, i) => {
+            // On compare chaque étoile à une partie des autres (performance)
+            pts.slice(i + 1).forEach(p2 => {
+                let dx = p1.x - p2.x, dy = p1.y - p2.y, dist = Math.sqrt(dx*dx+dy*dy);
+                
+                // Si les étoiles sont proches, on trace une ligne
+                if (dist < MAX_DIST) {
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                }
+            });
+        });
     }
 
     function draw() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
-        ctx.fillStyle = "rgba(110,69,226,0.3)";
+        
+        // On dessine les constellations EN PREMIER pour qu'elles soient derrière
+        drawConstellations();
+        
+        // On dessine les étoiles
+        ctx.fillStyle = "white"; 
+        
         pts.forEach(p => {
+            // Défilement
             p.x+=p.vx; p.y+=p.vy;
-            if(p.x<0||p.x>canvas.width) p.vx*=-1; 
-            if(p.y<0||p.y>canvas.height) p.vy*=-1;
-            ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,Math.PI*2); ctx.fill();
+            
+            // Interaction souris (les étoiles fuient doucement)
+            if(mouse.x) {
+                let dx = mouse.x - p.x, dy = mouse.y - p.y, dist = Math.sqrt(dx*dx+dy*dy);
+                if (dist < 200) {
+                    let f = (200-dist)/200;
+                    p.x -= dx*f*0.01; p.y -= dy*f*0.01;
+                }
+            }
+
+            // Rebond/Boucle sur les bords (réapparaissent de l'autre côté)
+            if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0; 
+            if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
+            
+            // Scintillement (légère variation aléatoire)
+            let opacity = p.brightness + (Math.random()*0.1-0.05);
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.1, Math.min(1, opacity))})`;
+            
+            // Dessin de l'étoile (plus grosse = plus de glow derrière)
+            ctx.beginPath(); 
+            ctx.arc(p.x,p.y,p.size,0,Math.PI*2); 
+            ctx.fill();
+            
+            // Un petit halo violet si l'étoile est grosse (effet profondeur)
+            if (p.size > 1.5) {
+                ctx.fillStyle = "rgba(110, 69, 226, 0.05)";
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
         });
         requestAnimationFrame(draw);
     }
